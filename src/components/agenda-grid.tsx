@@ -110,7 +110,10 @@ export function AgendaGrid({
                         </span>
                         <form action={cancelAppointmentForm} onClick={(e) => e.stopPropagation()}>
                           <input type="hidden" name="id" value={a.id} />
-                          <button type="submit" className="text-[10px] underline opacity-80 hover:opacity-100">
+                          <button
+                            type="submit"
+                            className="text-xs font-medium underline decoration-dotted underline-offset-2 opacity-90 hover:opacity-100 cursor-pointer -mx-1 -my-0.5 px-1 py-0.5 rounded hover:bg-black/10"
+                          >
                             Annulla
                           </button>
                         </form>
