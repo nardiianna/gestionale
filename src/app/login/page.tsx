@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -30,7 +31,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-4 gap-8">
+      <Image src="/logo.png" alt="Gestionale" width={272} height={91} priority />
+
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-neutral-200 p-8 flex flex-col gap-4"
