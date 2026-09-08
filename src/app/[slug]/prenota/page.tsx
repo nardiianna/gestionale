@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { BookingWizard } from "@/components/booking-wizard";
+import { AppCredit } from "@/components/app-credit";
 
 export default async function PublicBookingPage({
   params,
@@ -36,6 +37,9 @@ export default async function PublicBookingPage({
         <h1 className="text-xl font-semibold mb-1">{business.name}</h1>
         <p className="text-sm text-neutral-500 mb-6">Prenota il tuo appuntamento online</p>
         <BookingWizard slug={slug} services={services ?? []} />
+      </div>
+      <div className="text-center mt-6">
+        <AppCredit className="inline-block text-xs" />
       </div>
     </div>
   );

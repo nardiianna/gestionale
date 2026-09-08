@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { AppCredit } from "@/components/app-credit";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -78,6 +79,8 @@ export default function LoginPage() {
           {loading ? "Accesso in corso..." : "Accedi"}
         </button>
       </form>
+
+      <AppCredit className="text-xs" />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getCurrentProfile } from "@/lib/profile";
 import { LogoutButton } from "@/components/logout-button";
 import { BackButton } from "@/components/back-button";
+import { AppCredit } from "@/components/app-credit";
 
 export default async function AdminLayout({
   children,
@@ -29,6 +30,9 @@ export default async function AdminLayout({
         <BackButton className="mb-4 flex items-center gap-1 text-sm text-neutral-500 hover:text-black transition-colors" />
         {children}
       </main>
+      <footer className="px-6 py-4 text-center">
+        <AppCredit className="inline-block text-xs" />
+      </footer>
     </div>
   );
 }

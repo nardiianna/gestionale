@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "@/components/logout-button";
+import { AppCredit } from "@/components/app-credit";
 
 const NAV_ITEMS = [
   { href: "/calendario", label: "Calendario" },
@@ -34,8 +35,9 @@ export function DashboardSidebar({ businessName }: { businessName: string }) {
           );
         })}
       </nav>
-      <div className="px-2 pt-4 border-t border-white/10">
+      <div className="px-2 pt-4 border-t border-white/10 flex flex-col gap-3">
         <LogoutButton />
+        <AppCredit variant="dark" className="text-[11px] opacity-80" />
       </div>
     </aside>
   );
