@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/profile";
 import { updateReminderSettings } from "./actions";
+import { SendTestReminderButton } from "@/components/send-test-reminder-button";
 
 export default async function PromemoriaPage() {
   const profile = await getCurrentProfile();
@@ -61,6 +62,10 @@ export default async function PromemoriaPage() {
           Salva impostazioni
         </button>
       </form>
+
+      <div className="mt-6 pt-6 border-t border-neutral-200">
+        <SendTestReminderButton />
+      </div>
     </div>
   );
 }
