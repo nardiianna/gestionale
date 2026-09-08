@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import { getCurrentProfile } from "@/lib/profile";
 import { LogoutButton } from "@/components/logout-button";
+import { BackButton } from "@/components/back-button";
 
 export default async function AdminLayout({
   children,
@@ -24,7 +25,10 @@ export default async function AdminLayout({
         </div>
         <LogoutButton className="text-sm text-neutral-500 hover:text-black transition-colors" />
       </header>
-      <main className="p-6">{children}</main>
+      <main className="p-6">
+        <BackButton className="mb-4 flex items-center gap-1 text-sm text-neutral-500 hover:text-black transition-colors" />
+        {children}
+      </main>
     </div>
   );
 }

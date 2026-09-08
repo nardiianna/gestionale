@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/profile";
@@ -45,7 +46,12 @@ export default async function CustomerDetailPage({
   const formData = await getBookingFormData();
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_2fr] max-w-5xl">
+    <div className="flex flex-col gap-4 max-w-5xl">
+      <Link href="/clienti" className="text-sm text-brand-600 hover:underline w-fit">
+        ‹ Tutti i clienti
+      </Link>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
       <section className="bg-white rounded-2xl border border-neutral-200 p-6 h-fit">
         <h1 className="text-lg font-semibold mb-2">{customer.full_name}</h1>
         <p className="text-sm text-neutral-600">{customer.phone}</p>
@@ -76,6 +82,7 @@ export default async function CustomerDetailPage({
           )}
         </ul>
       </section>
+      </div>
     </div>
   );
 }

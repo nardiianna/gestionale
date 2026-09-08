@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { BackButton } from "@/components/back-button";
 
 export default async function DashboardLayout({
   children,
@@ -23,7 +24,10 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen">
       <DashboardSidebar businessName={business?.name ?? "Il mio salone"} />
-      <main className="flex-1 bg-neutral-50 p-6">{children}</main>
+      <main className="flex-1 bg-neutral-50 p-6">
+        <BackButton className="mb-4 flex items-center gap-1 text-sm text-neutral-500 hover:text-black transition-colors" />
+        {children}
+      </main>
     </div>
   );
 }

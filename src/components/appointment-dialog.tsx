@@ -94,9 +94,17 @@ export function AppointmentDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl max-h-[90vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Nuovo appuntamento</h2>
-          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700">
+        <div className="px-6 py-4 border-b border-neutral-200 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Indietro"
+            className="text-neutral-400 hover:text-neutral-700"
+          >
+            ←
+          </button>
+          <h2 className="text-lg font-semibold flex-1">Nuovo appuntamento</h2>
+          <button onClick={onClose} aria-label="Chiudi" className="text-neutral-400 hover:text-neutral-700">
             ✕
           </button>
         </div>
