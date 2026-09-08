@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createAppointment } from "@/lib/actions/appointments";
+import { createAppointment, updateAppointment } from "@/lib/actions/appointments";
 
 export type Service = { id: string; name: string; duration_minutes: number; price_cents: number };
 export type StaffMember = { id: string; display_name: string };
@@ -17,6 +17,12 @@ type Props = {
   defaultDate?: string;
   defaultTime?: string;
   initialCustomerId?: string;
+  /** Edit mode: when set, the dialog edits this appointment instead of creating a new one. */
+  appointmentId?: string;
+  customerName?: string;
+  initialStaffMemberId?: string;
+  initialServiceIds?: string[];
+  initialNotes?: string;
 };
 
 export function AppointmentDialog({
@@ -28,22 +34,28 @@ export function AppointmentDialog({
   defaultDate,
   defaultTime,
   initialCustomerId,
+  appointmentId,
+  customerName,
+  initialStaffMemberId,
+  initialServiceIds,
+  initialNotes,
 }: Props) {
   const router = useRouter();
+  const isEditing = !!appointmentId;
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const [date, setDate] = useState(defaultDate ?? new Date().toISOString().slice(0, 10));
   const [startTime, setStartTime] = useState(defaultTime ?? "09:00");
-  const [staffMemberId, setStaffMemberId] = useState(staffMembers[0]?.id ?? "");
-  const [serviceIds, setServiceIds] = useState<string[]>([]);
+  const [staffMemberId, setStaffMemberId] = useState(initialStaffMemberId ?? staffMembers[0]?.id ?? "");
+  const [serviceIds, setServiceIds] = useState<string[]>(initialServiceIds ?? []);
   const [customerSearch, setCustomerSearch] = useState("");
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
     initialCustomerId ?? null,
   );
   const [newCustomerName, setNewCustomerName] = useState("");
   const [newCustomerPhone, setNewCustomerPhone] = useState("");
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(initialNotes ?? "");
 
   const matchingCustomers = useMemo(() => {
     if (!customerSearch || selectedCustomerId) return [];
@@ -65,17 +77,21 @@ export function AppointmentDialog({
     formData.set("date", date);
     formData.set("startTime", startTime);
     formData.set("staffMemberId", staffMemberId);
-    if (selectedCustomerId) {
-      formData.set("customerId", selectedCustomerId);
-    } else {
-      formData.set("newCustomerName", newCustomerName);
-      formData.set("newCustomerPhone", newCustomerPhone);
+    if (!isEditing) {
+      if (selectedCustomerId) {
+        formData.set("customerId", selectedCustomerId);
+      } else {
+        formData.set("newCustomerName", newCustomerName);
+        formData.set("newCustomerPhone", newCustomerPhone);
+      }
     }
     serviceIds.forEach((id) => formData.append("serviceIds", id));
     formData.set("notes", notes);
 
     startTransition(async () => {
-      const result = await createAppointment(formData);
+      const result = isEditing
+        ? await updateAppointment(appointmentId!, formData)
+        : await createAppointment(formData);
       if (result?.error) {
         setError(result.error);
         return;
@@ -103,7 +119,9 @@ export function AppointmentDialog({
           >
             ←
           </button>
-          <h2 className="text-lg font-semibold flex-1">Nuovo appuntamento</h2>
+          <h2 className="text-lg font-semibold flex-1">
+            {isEditing ? "Modifica appuntamento" : "Nuovo appuntamento"}
+          </h2>
           <button onClick={onClose} aria-label="Chiudi" className="text-neutral-400 hover:text-neutral-700">
             ✕
           </button>
@@ -175,7 +193,11 @@ export function AppointmentDialog({
 
           <div className="flex flex-col gap-2">
             <span className="text-sm text-neutral-600">Cliente</span>
-            {selectedCustomerId ? (
+            {isEditing ? (
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
+                {customerName}
+              </div>
+            ) : selectedCustomerId ? (
               <div className="flex items-center justify-between rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm">
                 <span>{customers.find((c) => c.id === selectedCustomerId)?.full_name}</span>
                 <button
@@ -246,7 +268,7 @@ export function AppointmentDialog({
             disabled={isPending}
             className="mt-2 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-medium py-2.5 transition-colors"
           >
-            {isPending ? "Salvataggio..." : "Aggiungi appuntamento"}
+            {isPending ? "Salvataggio..." : isEditing ? "Salva modifiche" : "Aggiungi appuntamento"}
           </button>
         </form>
       </div>

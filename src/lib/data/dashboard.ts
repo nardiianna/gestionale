@@ -27,7 +27,7 @@ export type AppointmentWithDetails = {
   notes: string | null;
   customers: { id: string; full_name: string } | null;
   staff_members: { id: string; display_name: string } | null;
-  appointment_services: { services: { name: string; color: string } | null }[];
+  appointment_services: { service_id: string; services: { id: string; name: string; color: string } | null }[];
 };
 
 export async function getAppointmentsInRange(startIso: string, endIso: string) {
@@ -35,7 +35,7 @@ export async function getAppointmentsInRange(startIso: string, endIso: string) {
   const { data } = await supabase
     .from("appointments")
     .select(
-      "id, starts_at, ends_at, status, notes, customers(id, full_name), staff_members(id, display_name), appointment_services(services(name, color))",
+      "id, starts_at, ends_at, status, notes, customers(id, full_name), staff_members(id, display_name), appointment_services(service_id, services(id, name, color))",
     )
     .gte("starts_at", startIso)
     .lt("starts_at", endIso)

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { AppointmentWithDetails } from "@/lib/data/dashboard";
-import { formatTimeInZone, minutesSinceMidnightInZone } from "@/lib/date-utils";
+import { dateKeyInZone, formatTimeInZone, minutesSinceMidnightInZone } from "@/lib/date-utils";
 import { textColorFor } from "@/lib/color-utils";
 import { cancelAppointmentForm } from "@/lib/actions/appointments";
 import { AppointmentDialog, type Customer, type Service, type StaffMember } from "@/components/appointment-dialog";
@@ -40,6 +40,7 @@ export function AgendaGrid({
   customers,
 }: Props) {
   const [activeSlot, setActiveSlot] = useState<{ date: string; time: string } | null>(null);
+  const [editingAppointment, setEditingAppointment] = useState<AppointmentWithDetails | null>(null);
 
   return (
     <>
@@ -96,7 +97,10 @@ export function AgendaGrid({
                     return (
                       <div
                         key={a.id}
-                        className="absolute inset-x-1 rounded-md p-1.5 text-[11px] overflow-hidden flex flex-col gap-0.5 shadow-sm"
+                        onClick={() => setEditingAppointment(a)}
+                        role="button"
+                        tabIndex={0}
+                        className="absolute inset-x-1 rounded-md p-1.5 text-[11px] overflow-hidden flex flex-col gap-0.5 shadow-sm text-left cursor-pointer"
                         style={{ top, height, backgroundColor: color, color: textColor }}
                       >
                         <span className="font-medium truncate">{a.customers?.full_name}</span>
@@ -104,7 +108,7 @@ export function AgendaGrid({
                         <span className="opacity-70">
                           {formatTimeInZone(a.starts_at, timezone)}–{formatTimeInZone(a.ends_at, timezone)}
                         </span>
-                        <form action={cancelAppointmentForm}>
+                        <form action={cancelAppointmentForm} onClick={(e) => e.stopPropagation()}>
                           <input type="hidden" name="id" value={a.id} />
                           <button type="submit" className="text-[10px] underline opacity-80 hover:opacity-100">
                             Annulla
@@ -126,6 +130,22 @@ export function AgendaGrid({
         onClose={() => setActiveSlot(null)}
         defaultDate={activeSlot?.date}
         defaultTime={activeSlot?.time}
+        services={services}
+        staffMembers={staffMembers}
+        customers={customers}
+      />
+
+      <AppointmentDialog
+        key={editingAppointment?.id ?? "not-editing"}
+        open={!!editingAppointment}
+        onClose={() => setEditingAppointment(null)}
+        appointmentId={editingAppointment?.id}
+        customerName={editingAppointment?.customers?.full_name}
+        defaultDate={editingAppointment ? dateKeyInZone(editingAppointment.starts_at, timezone) : undefined}
+        defaultTime={editingAppointment ? formatTimeInZone(editingAppointment.starts_at, timezone) : undefined}
+        initialStaffMemberId={editingAppointment?.staff_members?.id}
+        initialServiceIds={editingAppointment?.appointment_services.map((s) => s.service_id)}
+        initialNotes={editingAppointment?.notes ?? undefined}
         services={services}
         staffMembers={staffMembers}
         customers={customers}
