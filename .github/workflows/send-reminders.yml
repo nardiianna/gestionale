@@ -1,0 +1,19 @@
+name: Send appointment reminders
+
+on:
+  schedule:
+    # Every 15 minutes. Vercel Hobby's own cron jobs are limited to once a
+    # day, which is too coarse for a configurable "hours before" reminder,
+    # so this workflow is the actual scheduler and just calls the app's
+    # Route Handler over HTTPS.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call send-reminders endpoint
+        run: |
+          curl -sf -X GET "https://gestionale.nardianna.it/api/cron/send-reminders" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
