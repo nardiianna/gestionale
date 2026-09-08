@@ -3,7 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/profile";
 import { getAppointmentsInRange, getBookingFormData } from "@/lib/data/dashboard";
 import { monthGridDates, monthLabel, weekdayLabels, dateKeyInZone, formatTimeInZone } from "@/lib/date-utils";
+import { textColorFor } from "@/lib/color-utils";
 import { AppointmentModal } from "@/components/appointment-modal";
+
+const DEFAULT_COLOR = "#111827";
 
 export default async function CalendarioPage({
   searchParams,
@@ -88,14 +91,18 @@ export default async function CalendarioPage({
             >
               <span className="text-sm">{day.getUTCDate()}</span>
               <div className="flex flex-col gap-0.5">
-                {dayAppointments.slice(0, 3).map((a) => (
-                  <span
-                    key={a.id}
-                    className="rounded bg-black text-white text-[11px] px-1.5 py-0.5 truncate"
-                  >
-                    {formatTimeInZone(a.starts_at, timezone)} {a.customers?.full_name}
-                  </span>
-                ))}
+                {dayAppointments.slice(0, 3).map((a) => {
+                  const color = a.appointment_services[0]?.services?.color ?? DEFAULT_COLOR;
+                  return (
+                    <span
+                      key={a.id}
+                      className="rounded text-[11px] px-1.5 py-0.5 truncate"
+                      style={{ backgroundColor: color, color: textColorFor(color) }}
+                    >
+                      {formatTimeInZone(a.starts_at, timezone)} {a.customers?.full_name}
+                    </span>
+                  );
+                })}
                 {dayAppointments.length > 3 && (
                   <span className="text-[11px] text-neutral-400">+{dayAppointments.length - 3} altri</span>
                 )}

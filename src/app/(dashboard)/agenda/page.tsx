@@ -2,13 +2,25 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/profile";
 import { getAppointmentsInRange, getBookingFormData, type AppointmentWithDetails } from "@/lib/data/dashboard";
-import { addDays, dateKeyInZone, formatTimeInZone, startOfWeek } from "@/lib/date-utils";
+import {
+  addDays,
+  dateKeyInZone,
+  formatTimeInZone,
+  minutesSinceMidnightInZone,
+  startOfWeek,
+} from "@/lib/date-utils";
+import { textColorFor } from "@/lib/color-utils";
 import { AppointmentModal } from "@/components/appointment-modal";
 import { cancelAppointmentForm } from "@/lib/actions/appointments";
 
 const DAY_LABELS = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+const SLOT_MINUTES = 30;
+const SLOT_HEIGHT_PX = 40;
 const DAY_START_HOUR = 7;
 const DAY_END_HOUR = 21;
+const TOTAL_SLOTS = ((DAY_END_HOUR - DAY_START_HOUR) * 60) / SLOT_MINUTES;
+const TOTAL_HEIGHT_PX = TOTAL_SLOTS * SLOT_HEIGHT_PX;
+const DEFAULT_COLOR = "#111827";
 
 function slotLabels() {
   const labels: string[] = [];
@@ -54,6 +66,7 @@ export default async function AgendaPage({
   const slots = slotLabels();
   const prevHref = `/agenda?date=${addDays(weekStart, -1).toISOString().slice(0, 10)}`;
   const nextHref = `/agenda?date=${addDays(weekStart, 7).toISOString().slice(0, 10)}`;
+  const gridStartMinutes = DAY_START_HOUR * 60;
 
   return (
     <div className="flex flex-col gap-4">
@@ -77,93 +90,81 @@ export default async function AgendaPage({
       </div>
 
       <div className="overflow-x-auto border border-neutral-200 rounded-xl bg-white">
-        <div className="grid grid-cols-[64px_repeat(7,1fr)] min-w-[900px]">
-          <div className="border-b border-neutral-200" />
+        <div className="flex min-w-[900px]">
+          <div className="w-16 shrink-0">
+            <div className="h-14 border-b border-neutral-200" />
+            <div className="relative" style={{ height: TOTAL_HEIGHT_PX }}>
+              {slots.map((label, i) => (
+                <div
+                  key={label}
+                  className="absolute inset-x-0 border-b border-neutral-100 px-2 text-[11px] text-neutral-400 text-right"
+                  style={{ top: i * SLOT_HEIGHT_PX, height: SLOT_HEIGHT_PX }}
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {weekDays.map((d) => {
             const key = d.toISOString().slice(0, 10);
+            const dayAppointments = byDayKey.get(key) ?? [];
             return (
-              <div key={key} className="border-b border-l border-neutral-200 px-2 py-2 text-center">
-                <div className="text-xs font-semibold text-neutral-500">{DAY_LABELS[(d.getUTCDay() + 6) % 7]}</div>
-                <div className="text-sm">{d.getUTCDate()}</div>
+              <div key={key} className="flex-1 border-l border-neutral-200 min-w-[110px]">
+                <div className="h-14 border-b border-neutral-200 px-2 py-2 text-center">
+                  <div className="text-xs font-semibold text-neutral-500">
+                    {DAY_LABELS[(d.getUTCDay() + 6) % 7]}
+                  </div>
+                  <div className="text-sm">{d.getUTCDate()}</div>
+                </div>
+
+                <div className="relative" style={{ height: TOTAL_HEIGHT_PX }}>
+                  {slots.map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute inset-x-0 border-b border-neutral-100"
+                      style={{ top: i * SLOT_HEIGHT_PX, height: SLOT_HEIGHT_PX }}
+                    />
+                  ))}
+
+                  {dayAppointments.map((a) => {
+                    const startMin = minutesSinceMidnightInZone(a.starts_at, timezone) - gridStartMinutes;
+                    const endMin = minutesSinceMidnightInZone(a.ends_at, timezone) - gridStartMinutes;
+                    const top = (Math.max(startMin, 0) / SLOT_MINUTES) * SLOT_HEIGHT_PX;
+                    const height = (Math.max(endMin - Math.max(startMin, 0), SLOT_MINUTES / 2) / SLOT_MINUTES) * SLOT_HEIGHT_PX;
+                    const color = a.appointment_services[0]?.services?.color ?? DEFAULT_COLOR;
+                    const textColor = textColorFor(color);
+                    const services = a.appointment_services
+                      .map((s) => s.services?.name)
+                      .filter(Boolean)
+                      .join(", ");
+
+                    return (
+                      <div
+                        key={a.id}
+                        className="absolute inset-x-1 rounded-md p-1.5 text-[11px] overflow-hidden flex flex-col gap-0.5 shadow-sm"
+                        style={{ top, height, backgroundColor: color, color: textColor }}
+                      >
+                        <span className="font-medium truncate">{a.customers?.full_name}</span>
+                        <span className="opacity-80 truncate">{services || "—"}</span>
+                        <span className="opacity-70">
+                          {formatTimeInZone(a.starts_at, timezone)}–{formatTimeInZone(a.ends_at, timezone)}
+                        </span>
+                        <form action={cancelAppointmentForm}>
+                          <input type="hidden" name="id" value={a.id} />
+                          <button type="submit" className="text-[10px] underline opacity-80 hover:opacity-100">
+                            Annulla
+                          </button>
+                        </form>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
-
-          {slots.map((slotLabel) => (
-            <FragmentRow
-              key={slotLabel}
-              slotLabel={slotLabel}
-              weekDays={weekDays}
-              byDayKey={byDayKey}
-              timezone={timezone}
-            />
-          ))}
         </div>
       </div>
     </div>
-  );
-}
-
-function FragmentRow({
-  slotLabel,
-  weekDays,
-  byDayKey,
-  timezone,
-}: {
-  slotLabel: string;
-  weekDays: Date[];
-  byDayKey: Map<string, AppointmentWithDetails[]>;
-  timezone: string;
-}) {
-  return (
-    <>
-      <div className="border-b border-neutral-100 px-2 py-1 text-[11px] text-neutral-400 text-right">
-        {slotLabel}
-      </div>
-      {weekDays.map((d) => {
-        const key = d.toISOString().slice(0, 10);
-        const dayAppointments = byDayKey.get(key) ?? [];
-        const startingHere = dayAppointments.find(
-          (a) => formatTimeInZone(a.starts_at, timezone) === slotLabel,
-        );
-        const covered = dayAppointments.find((a) => {
-          const startLabel = formatTimeInZone(a.starts_at, timezone);
-          const endLabel = formatTimeInZone(a.ends_at, timezone);
-          return startLabel < slotLabel && slotLabel < endLabel;
-        });
-
-        if (startingHere) {
-          const services = startingHere.appointment_services
-            .map((s) => s.services?.name)
-            .filter(Boolean)
-            .join(", ");
-          return (
-            <div key={key} className="border-b border-l border-neutral-100 p-1">
-              <div className="rounded-md bg-black text-white text-[11px] p-1.5 flex flex-col gap-0.5">
-                <span className="font-medium truncate">{startingHere.customers?.full_name}</span>
-                <span className="opacity-80 truncate">{services || "—"}</span>
-                <span className="opacity-70">
-                  {formatTimeInZone(startingHere.starts_at, timezone)}–{formatTimeInZone(startingHere.ends_at, timezone)}
-                </span>
-                <form action={cancelAppointmentForm}>
-                  <input type="hidden" name="id" value={startingHere.id} />
-                  <button type="submit" className="text-[10px] underline opacity-80 hover:opacity-100">
-                    Annulla
-                  </button>
-                </form>
-              </div>
-            </div>
-          );
-        }
-
-        if (covered) {
-          return <div key={key} className="border-b border-l border-neutral-100 bg-neutral-100" />;
-        }
-
-        return (
-          <div key={key} className="border-b border-l border-neutral-100 min-h-8" />
-        );
-      })}
-    </>
   );
 }

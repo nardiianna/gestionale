@@ -58,6 +58,18 @@ export function zonedWallTimeToUtc(dateStr: string, timeStr: string, timeZone: s
   return new Date(naiveUtc.getTime() - offsetMinutes * 60_000);
 }
 
+export function minutesSinceMidnightInZone(iso: string, timeZone: string): number {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hourCycle: "h23",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(new Date(iso));
+  const hour = Number(parts.find((p) => p.type === "hour")?.value ?? 0);
+  const minute = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+  return hour * 60 + minute;
+}
+
 export function formatTimeInZone(iso: string, timeZone: string): string {
   return new Intl.DateTimeFormat("it-IT", {
     timeZone,
