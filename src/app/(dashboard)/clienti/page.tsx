@@ -78,7 +78,7 @@ export default async function ClientiPage({
           />
           <button
             type="submit"
-            className="mt-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium py-2.5 transition-colors"
+            className="mt-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium py-2.5 transition-colors"
           >
             Aggiungi cliente
           </button>

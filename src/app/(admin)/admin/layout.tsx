@@ -14,7 +14,7 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      <header className="bg-neutral-900 text-white px-6 py-3 flex items-center justify-between">
+      <header className="bg-black text-white px-6 py-3 flex items-center justify-between">
         <span className="font-semibold">Nardi Creates — Super Admin</span>
         <LogoutButton />
       </header>

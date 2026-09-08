@@ -33,7 +33,7 @@ export default async function ServiziPage() {
               <form action={toggleService}>
                 <input type="hidden" name="id" value={s.id} />
                 <input type="hidden" name="active" value={String(s.active)} />
-                <button type="submit" className="text-xs text-indigo-600 hover:underline">
+                <button type="submit" className="text-xs text-brand-600 hover:underline">
                   {s.active ? "Disattiva" : "Riattiva"}
                 </button>
               </form>
@@ -77,7 +77,7 @@ export default async function ServiziPage() {
           </label>
           <button
             type="submit"
-            className="mt-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium py-2.5 transition-colors"
+            className="mt-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium py-2.5 transition-colors"
           >
             Aggiungi servizio
           </button>

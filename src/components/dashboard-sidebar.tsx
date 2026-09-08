@@ -16,7 +16,7 @@ export function DashboardSidebar({ businessName }: { businessName: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 shrink-0 bg-indigo-600 text-white flex flex-col min-h-screen px-3 py-4">
+    <aside className="w-56 shrink-0 bg-black text-white flex flex-col min-h-screen px-3 py-4">
       <div className="px-2 pb-4 text-lg font-semibold">{businessName}</div>
       <nav className="flex-1 flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
@@ -26,7 +26,7 @@ export function DashboardSidebar({ businessName }: { businessName: string }) {
               key={item.href}
               href={item.href}
               className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                active ? "bg-pink-500 text-white" : "text-white/80 hover:bg-white/10"
+                active ? "bg-brand-500 text-white" : "text-white/80 hover:bg-white/10"
               }`}
             >
               {item.label}

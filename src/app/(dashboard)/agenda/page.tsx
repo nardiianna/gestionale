@@ -69,7 +69,7 @@ export default async function AgendaPage({
           <Link href={nextHref} className="text-neutral-400 hover:text-neutral-700">
             ›
           </Link>
-          <Link href="/calendario" className="ml-4 text-sm text-indigo-600 hover:underline">
+          <Link href="/calendario" className="ml-4 text-sm text-brand-600 hover:underline">
             Vai a Calendario
           </Link>
         </div>
@@ -139,7 +139,7 @@ function FragmentRow({
             .join(", ");
           return (
             <div key={key} className="border-b border-l border-neutral-100 p-1">
-              <div className="rounded-md bg-indigo-500 text-white text-[11px] p-1.5 flex flex-col gap-0.5">
+              <div className="rounded-md bg-black text-white text-[11px] p-1.5 flex flex-col gap-0.5">
                 <span className="font-medium truncate">{startingHere.customers?.full_name}</span>
                 <span className="opacity-80 truncate">{services || "—"}</span>
                 <span className="opacity-70">
@@ -157,7 +157,7 @@ function FragmentRow({
         }
 
         if (covered) {
-          return <div key={key} className="border-b border-l border-neutral-100 bg-indigo-50" />;
+          return <div key={key} className="border-b border-l border-neutral-100 bg-neutral-100" />;
         }
 
         return (

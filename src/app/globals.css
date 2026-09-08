@@ -5,6 +5,19 @@
   --foreground: #171717;
 }
 
+/* Same brand pink scale as WhiteTime, paired with black for structure. */
+@theme {
+  --color-brand-50: #fff6f8;
+  --color-brand-100: #feeaee;
+  --color-brand-200: #fbd3db;
+  --color-brand-300: #fcb4bf;
+  --color-brand-400: #f2929f;
+  --color-brand-500: #e2788b;
+  --color-brand-600: #c85f72;
+  --color-brand-700: #a6485a;
+  --color-brand-800: #7d3544;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

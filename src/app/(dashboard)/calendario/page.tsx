@@ -61,7 +61,7 @@ export default async function CalendarioPage({
           <Link href={nextHref} className="text-neutral-400 hover:text-neutral-700">
             ›
           </Link>
-          <Link href="/agenda" className="ml-4 text-sm text-indigo-600 hover:underline">
+          <Link href="/agenda" className="ml-4 text-sm text-brand-600 hover:underline">
             Vai ad Agenda
           </Link>
         </div>
@@ -84,14 +84,14 @@ export default async function CalendarioPage({
               href={`/agenda?date=${key}`}
               className={`bg-white min-h-24 p-2 flex flex-col gap-1 hover:bg-neutral-50 transition-colors ${
                 inMonth ? "" : "opacity-40"
-              } ${key === todayKey ? "ring-2 ring-inset ring-yellow-300" : ""}`}
+              } ${key === todayKey ? "ring-2 ring-inset ring-brand-300" : ""}`}
             >
               <span className="text-sm">{day.getUTCDate()}</span>
               <div className="flex flex-col gap-0.5">
                 {dayAppointments.slice(0, 3).map((a) => (
                   <span
                     key={a.id}
-                    className="rounded bg-indigo-500 text-white text-[11px] px-1.5 py-0.5 truncate"
+                    className="rounded bg-black text-white text-[11px] px-1.5 py-0.5 truncate"
                   >
                     {formatTimeInZone(a.starts_at, timezone)} {a.customers?.full_name}
                   </span>

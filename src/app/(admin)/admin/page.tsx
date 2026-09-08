@@ -60,7 +60,7 @@ export default async function AdminPage() {
           />
           <button
             type="submit"
-            className="mt-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2.5 transition-colors"
+            className="mt-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium py-2.5 transition-colors"
           >
             Crea cliente
           </button>

@@ -110,7 +110,7 @@ export function BookingWizard({ slug, services }: { slug: string; services: Serv
           <button
             onClick={loadSlots}
             disabled={!serviceIds.length || loading}
-            className="rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-60 text-white text-sm font-medium py-2.5"
+            className="rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-medium py-2.5"
           >
             {loading ? "Ricerca..." : "Cerca disponibilità"}
           </button>
@@ -129,7 +129,7 @@ export function BookingWizard({ slug, services }: { slug: string; services: Serv
                   setSelectedSlot(slot);
                   setStep("details");
                 }}
-                className="rounded-lg border border-neutral-300 hover:border-indigo-500 hover:bg-indigo-50 px-2 py-2 text-sm"
+                className="rounded-lg border border-neutral-300 hover:border-brand-500 hover:bg-brand-50 px-2 py-2 text-sm"
               >
                 {new Date(slot).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}
               </button>
@@ -172,7 +172,7 @@ export function BookingWizard({ slug, services }: { slug: string; services: Serv
           <button
             type="submit"
             disabled={loading}
-            className="rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-60 text-white text-sm font-medium py-2.5"
+            className="rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-medium py-2.5"
           >
             {loading ? "Conferma in corso..." : "Conferma prenotazione"}
           </button>

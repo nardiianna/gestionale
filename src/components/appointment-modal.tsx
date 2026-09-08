@@ -103,7 +103,7 @@ export function AppointmentModal({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-sm font-medium px-4 py-2 transition-colors"
+        className="rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-4 py-2 transition-colors"
       >
         {trigger ?? "+ Nuovo appuntamento"}
       </button>
@@ -185,12 +185,12 @@ export function AppointmentModal({
               <div className="flex flex-col gap-2">
                 <span className="text-sm text-neutral-600">Cliente</span>
                 {selectedCustomerId ? (
-                  <div className="flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm">
+                  <div className="flex items-center justify-between rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm">
                     <span>{customers.find((c) => c.id === selectedCustomerId)?.full_name}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedCustomerId(null)}
-                      className="text-xs text-indigo-600 hover:underline"
+                      className="text-xs text-brand-600 hover:underline"
                     >
                       Cambia
                     </button>
@@ -253,7 +253,7 @@ export function AppointmentModal({
               <button
                 type="submit"
                 disabled={isPending}
-                className="mt-2 rounded-lg bg-pink-500 hover:bg-pink-600 disabled:opacity-60 text-white text-sm font-medium py-2.5 transition-colors"
+                className="mt-2 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-medium py-2.5 transition-colors"
               >
                 {isPending ? "Salvataggio..." : "Aggiungi appuntamento"}
               </button>
