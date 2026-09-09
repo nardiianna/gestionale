@@ -1,6 +1,14 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const FROM_ADDRESS = "Gestionale <notifiche@gestionale.nardianna.it>";
+const SENDER_DOMAIN = "notifiche@gestionale.nardianna.it";
+
+// Only the shared domain is verified for sending, so every business's
+// reminders go out through the same address -- but the display name is
+// the business's own name, so the recipient immediately recognizes who
+// it's from.
+function fromAddressFor(businessName: string) {
+  return `"${businessName.replace(/"/g, "")}" <${SENDER_DOMAIN}>`;
+}
 
 type DueReminder = {
   appointment_id: string;
@@ -29,7 +37,7 @@ async function sendReminderEmail(reminder: DueReminder): Promise<string | null> 
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: FROM_ADDRESS,
+      from: fromAddressFor(reminder.business_name),
       to: [reminder.customer_email],
       subject: reminder.email_subject_template,
       html:

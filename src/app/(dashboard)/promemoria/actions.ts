@@ -24,7 +24,15 @@ export async function updateReminderSettings(formData: FormData) {
   revalidatePath("/promemoria");
 }
 
-const FROM_ADDRESS = "Gestionale <notifiche@gestionale.nardianna.it>";
+const SENDER_DOMAIN = "notifiche@gestionale.nardianna.it";
+
+// Only the shared domain is verified for sending, so every business's
+// reminders go out through the same address -- but the display name is
+// the business's own name, so the recipient immediately recognizes who
+// it's from.
+function fromAddressFor(businessName: string) {
+  return `"${businessName.replace(/"/g, "")}" <${SENDER_DOMAIN}>`;
+}
 
 export async function sendTestReminder(): Promise<{ error?: string; success?: boolean }> {
   const profile = await getCurrentProfile();
@@ -36,6 +44,12 @@ export async function sendTestReminder(): Promise<{ error?: string; success?: bo
   } = await supabase.auth.getUser();
   if (!user?.email) return { error: "Nessuna email associata al tuo account" };
 
+  const { data: business } = await supabase
+    .from("businesses")
+    .select("name")
+    .eq("id", profile.business_id)
+    .single();
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -43,7 +57,7 @@ export async function sendTestReminder(): Promise<{ error?: string; success?: bo
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: FROM_ADDRESS,
+      from: fromAddressFor(business?.name ?? "Gestionale"),
       to: [user.email],
       subject: "Promemoria appuntamento (test)",
       html: "<p>Questa è un'email di test dei promemoria appuntamento di Gestionale.</p><p>Se la ricevi, l'invio funziona correttamente.</p>",
