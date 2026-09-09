@@ -13,7 +13,7 @@ export async function createCustomer(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim() || null;
   const notes = String(formData.get("notes") ?? "").trim() || null;
 
-  if (!fullName || !phone) throw new Error("Nome e telefono sono obbligatori");
+  if (!fullName || !phone || !email) throw new Error("Nome, telefono ed email sono obbligatori");
 
   const supabase = await createClient();
   const { error } = await supabase.from("customers").insert({
