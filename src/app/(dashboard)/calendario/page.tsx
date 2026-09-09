@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/profile";
-import { getAppointmentsInRange, getBookingFormData } from "@/lib/data/dashboard";
-import { monthGridDates, monthLabel, weekdayLabels, dateKeyInZone, formatTimeInZone } from "@/lib/date-utils";
-import { textColorFor } from "@/lib/color-utils";
+import { getAppointmentsInRange, getBookingFormData, type AppointmentWithDetails } from "@/lib/data/dashboard";
+import { monthGridDates, monthLabel, weekdayLabels, dateKeyInZone } from "@/lib/date-utils";
 import { AppointmentModal } from "@/components/appointment-modal";
-
-const DEFAULT_COLOR = "#111827";
+import { MonthGrid } from "@/components/month-grid";
 
 export default async function CalendarioPage({
   searchParams,
@@ -40,11 +38,11 @@ export default async function CalendarioPage({
     getBookingFormData(),
   ]);
 
-  const byDay = new Map<string, typeof appointments>();
+  const appointmentsByDay: Record<string, AppointmentWithDetails[]> = {};
   for (const appt of appointments) {
     const key = dateKeyInZone(appt.starts_at, timezone);
-    if (!byDay.has(key)) byDay.set(key, []);
-    byDay.get(key)!.push(appt);
+    if (!appointmentsByDay[key]) appointmentsByDay[key] = [];
+    appointmentsByDay[key].push(appt);
   }
 
   const prevMonthDate = new Date(Date.UTC(year, zeroBasedMonth - 1, 1));
@@ -52,6 +50,13 @@ export default async function CalendarioPage({
   const prevHref = `/calendario?month=${prevMonthDate.getUTCFullYear()}-${String(prevMonthDate.getUTCMonth() + 1).padStart(2, "0")}`;
   const nextHref = `/calendario?month=${nextMonthDate.getUTCFullYear()}-${String(nextMonthDate.getUTCMonth() + 1).padStart(2, "0")}`;
   const todayKey = dateKeyInZone(new Date().toISOString(), timezone);
+
+  const daysInfo = days.map((day) => ({
+    key: day.toISOString().slice(0, 10),
+    dayNum: day.getUTCDate(),
+    inMonth: day.getUTCMonth() === zeroBasedMonth,
+    isToday: day.toISOString().slice(0, 10) === todayKey,
+  }));
 
   return (
     <div className="flex flex-col gap-4">
@@ -77,39 +82,12 @@ export default async function CalendarioPage({
             {label}
           </div>
         ))}
-        {days.map((day) => {
-          const key = day.toISOString().slice(0, 10);
-          const inMonth = day.getUTCMonth() === zeroBasedMonth;
-          const dayAppointments = byDay.get(key) ?? [];
-          return (
-            <Link
-              key={key}
-              href={`/agenda?date=${key}`}
-              className={`bg-white min-h-24 p-2 flex flex-col gap-1 hover:bg-neutral-50 transition-colors ${
-                inMonth ? "" : "opacity-40"
-              } ${key === todayKey ? "ring-2 ring-inset ring-brand-300" : ""}`}
-            >
-              <span className="text-sm">{day.getUTCDate()}</span>
-              <div className="flex flex-col gap-0.5">
-                {dayAppointments.slice(0, 3).map((a) => {
-                  const color = a.appointment_services[0]?.services?.color ?? DEFAULT_COLOR;
-                  return (
-                    <span
-                      key={a.id}
-                      className="rounded text-[11px] px-1.5 py-0.5 truncate"
-                      style={{ backgroundColor: color, color: textColorFor(color) }}
-                    >
-                      {formatTimeInZone(a.starts_at, timezone)} {a.customers?.full_name}
-                    </span>
-                  );
-                })}
-                {dayAppointments.length > 3 && (
-                  <span className="text-[11px] text-neutral-400">+{dayAppointments.length - 3} altri</span>
-                )}
-              </div>
-            </Link>
-          );
-        })}
+        <MonthGrid
+          days={daysInfo}
+          timezone={timezone}
+          appointmentsByDay={appointmentsByDay}
+          {...formData}
+        />
       </div>
     </div>
   );
