@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
 export type Profile = {
@@ -7,7 +8,15 @@ export type Profile = {
   full_name: string | null;
 };
 
-export async function getCurrentProfile(): Promise<Profile | null> {
+export type Business = {
+  id: string;
+  name: string;
+  timezone: string;
+};
+
+// Cached per request: the layout and the page both need the profile, and
+// without this every render pass hit Supabase auth + the profiles table twice.
+export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -21,4 +30,19 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .single();
 
   return (data as Profile) ?? null;
-}
+});
+
+// Cached per request for the same reason as getCurrentProfile above.
+export const getCurrentBusiness = cache(async (): Promise<Business | null> => {
+  const profile = await getCurrentProfile();
+  if (!profile?.business_id) return null;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("businesses")
+    .select("id, name, timezone")
+    .eq("id", profile.business_id)
+    .single();
+
+  return (data as Business) ?? null;
+});

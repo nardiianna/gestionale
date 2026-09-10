@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentProfile } from "@/lib/profile";
+import { getCurrentBusiness } from "@/lib/profile";
 import { getBookingFormData } from "@/lib/data/dashboard";
 import { formatTimeInZone } from "@/lib/date-utils";
 import { AppointmentModal } from "@/components/appointment-modal";
@@ -13,27 +13,19 @@ export default async function CustomerDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const profile = await getCurrentProfile();
 
-  const { data: customer } = await supabase
-    .from("customers")
-    .select("id, full_name, phone, email, notes")
-    .eq("id", id)
-    .single();
+  const [{ data: customer }, business, { data: appointmentsData }, formData] = await Promise.all([
+    supabase.from("customers").select("id, full_name, phone, email, notes").eq("id", id).single(),
+    getCurrentBusiness(),
+    supabase
+      .from("appointments")
+      .select("id, starts_at, ends_at, status, appointment_services(services(name))")
+      .eq("customer_id", id)
+      .order("starts_at", { ascending: false }),
+    getBookingFormData(),
+  ]);
   if (!customer) notFound();
-
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("timezone")
-    .eq("id", profile!.business_id!)
-    .single();
   const timezone = business?.timezone ?? "Europe/Rome";
-
-  const { data: appointmentsData } = await supabase
-    .from("appointments")
-    .select("id, starts_at, ends_at, status, appointment_services(services(name))")
-    .eq("customer_id", id)
-    .order("starts_at", { ascending: false });
 
   const appointments = (appointmentsData ?? []) as unknown as {
     id: string;
@@ -42,8 +34,6 @@ export default async function CustomerDetailPage({
     status: string;
     appointment_services: { services: { name: string } | null }[];
   }[];
-
-  const formData = await getBookingFormData();
 
   return (
     <div className="flex flex-col gap-4 max-w-5xl">

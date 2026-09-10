@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentProfile } from "@/lib/profile";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile, getCurrentBusiness } from "@/lib/profile";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { BackButton } from "@/components/back-button";
 
@@ -14,12 +13,7 @@ export default async function DashboardLayout({
   if (!profile) redirect("/login");
   if (profile.role === "super_admin") redirect("/admin");
 
-  const supabase = await createClient();
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("name")
-    .eq("id", profile.business_id!)
-    .single();
+  const business = await getCurrentBusiness();
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen">

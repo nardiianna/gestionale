@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentProfile } from "@/lib/profile";
+import { getCurrentBusiness } from "@/lib/profile";
 import { getAppointmentsInRange, getBookingFormData, type AppointmentWithDetails } from "@/lib/data/dashboard";
 import { addDays, dateKeyInZone, startOfWeek } from "@/lib/date-utils";
 import { AppointmentModal } from "@/components/appointment-modal";
@@ -28,24 +27,18 @@ export default async function AgendaPage({
   searchParams: Promise<{ date?: string }>;
 }) {
   const { date: dateParam } = await searchParams;
-  const profile = await getCurrentProfile();
-  const supabase = await createClient();
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("timezone")
-    .eq("id", profile!.business_id!)
-    .single();
-  const timezone = business?.timezone ?? "Europe/Rome";
 
   const anchor = dateParam ? new Date(`${dateParam}T00:00:00Z`) : new Date();
   const weekStart = startOfWeek(anchor);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const rangeEnd = addDays(weekStart, 8);
 
-  const [appointments, formData] = await Promise.all([
+  const [business, appointments, formData] = await Promise.all([
+    getCurrentBusiness(),
     getAppointmentsInRange(weekStart.toISOString(), rangeEnd.toISOString()),
     getBookingFormData(),
   ]);
+  const timezone = business?.timezone ?? "Europe/Rome";
 
   const appointmentsByDay: Record<string, AppointmentWithDetails[]> = {};
   for (const appt of appointments) {

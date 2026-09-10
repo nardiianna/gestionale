@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentProfile } from "@/lib/profile";
+import { getCurrentBusiness } from "@/lib/profile";
 import { getAppointmentsInRange, getBookingFormData, type AppointmentWithDetails } from "@/lib/data/dashboard";
 import { monthGridDates, monthLabel, weekdayLabels, dateKeyInZone } from "@/lib/date-utils";
 import { AppointmentModal } from "@/components/appointment-modal";
@@ -12,14 +11,6 @@ export default async function CalendarioPage({
   searchParams: Promise<{ month?: string }>;
 }) {
   const { month: monthParam } = await searchParams;
-  const profile = await getCurrentProfile();
-  const supabase = await createClient();
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("timezone")
-    .eq("id", profile!.business_id!)
-    .single();
-  const timezone = business?.timezone ?? "Europe/Rome";
 
   const now = new Date();
   const [year, month] = monthParam
@@ -33,10 +24,12 @@ export default async function CalendarioPage({
   const rangeEnd = new Date(days[days.length - 1]);
   rangeEnd.setUTCDate(rangeEnd.getUTCDate() + 2);
 
-  const [appointments, formData] = await Promise.all([
+  const [business, appointments, formData] = await Promise.all([
+    getCurrentBusiness(),
     getAppointmentsInRange(rangeStart.toISOString(), rangeEnd.toISOString()),
     getBookingFormData(),
   ]);
+  const timezone = business?.timezone ?? "Europe/Rome";
 
   const appointmentsByDay: Record<string, AppointmentWithDetails[]> = {};
   for (const appt of appointments) {
