@@ -39,6 +39,7 @@ export async function getAppointmentsInRange(startIso: string, endIso: string) {
     )
     .gte("starts_at", startIso)
     .lt("starts_at", endIso)
+    .neq("status", "cancelled")
     .order("starts_at");
 
   return (data ?? []) as unknown as AppointmentWithDetails[];
